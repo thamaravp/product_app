@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// Login screen
 class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -22,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  // Login function
   void loginUser() async {
     var url = Uri.parse("https://fakestoreapi.com/auth/login");
 
@@ -83,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+// Home screen to show products
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -90,7 +93,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<dynamic> products = [];
-  bool isLoading = true;
 
   @override
   void initState() {
@@ -98,6 +100,7 @@ class _HomePageState extends State<HomePage> {
     fetchProducts();
   }
 
+  // Getting product list from API
   void fetchProducts() async {
     var url = Uri.parse("https://fakestoreapi.com/products");
     var response = await http.get(url);
@@ -105,11 +108,6 @@ class _HomePageState extends State<HomePage> {
     if (response.statusCode == 200) {
       setState(() {
         products = json.decode(response.body);
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
       });
     }
   }
@@ -118,46 +116,41 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Home")),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                var product = products[index];
+      body: ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          var product = products[index];
 
-                return Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Row(
+          return Padding(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+                Image.network(product['image'], width: 60, height: 60),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.network(product['image'], width: 60, height: 60),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product['title'],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              "\$${product['price']}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
+                      Text(
+                        product['title'],
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "\$${product['price']}",
+                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+              ],
             ),
+          );
+        },
+      ),
     );
   }
 }
