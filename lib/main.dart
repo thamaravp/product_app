@@ -1,75 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: LoginPage(), debugShowCheckedModeBanner: false);
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  void loginUser() async {
+    var url = Uri.parse("https://fakestoreapi.com/auth/login");
+
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        "username": usernameController.text,
+        "password": passwordController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Login Failed"),
+          content: Text("Invalid username or password"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Staff Login',
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Container(
-            height: 400,
-            width: 300,
-            color: Colors.amber,
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-
-                // Title
-                Text('Staff Login', style: TextStyle(fontSize: 24)),
-
-                SizedBox(height: 30),
-
-                // Username box
-                Container(
-                  width: 250,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 20),
-
-                Container(
-                  width: 250,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 30),
-
-                // Login button
-                ElevatedButton(
-                  onPressed: () {
-                    print('Login button pressed!');
-                  },
-                  child: Text('Login'),
-                ),
-
-                SizedBox(height: 20),
-
-                // Test info
-                Text('Username: mor_2314'),
-                Text('Password: 83r5^_'),
-              ],
+    return Scaffold(
+      appBar: AppBar(title: Text("Login")),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: usernameController,
+              decoration: InputDecoration(labelText: "Username"),
             ),
-          ),
+            SizedBox(height: 15),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: "Password"),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(onPressed: loginUser, child: Text("Login")),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Home")),
+      body: Container(),
     );
   }
 }
